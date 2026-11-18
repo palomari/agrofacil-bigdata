@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgroFácil · Painel do Produtor</title>
+<style>
+  :root{
+    --bg:#f5f3ec; --card:#fffdf8; --ink:#1b2a21; --muted:#617068; --line:#e6e2d6;
+    --verde:#2e5e3b; --agua:#2b6f8f; --soft:#eef0e6;
+    --ok:#3b7a48; --atencao:#b07c14; --alerta:#b23f2e; --ref:#b23f2e;
+    --sombra:0 1px 2px rgba(27,42,33,.04),0 8px 24px rgba(27,42,33,.05);
+    --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#111812;--card:#18221b;--ink:#e9efe9;--muted:#9aa89f;--line:#27342b;
+      --verde:#86c395;--agua:#74b6d4;--soft:#1e2b22;--ok:#7cc48b;--atencao:#e0b24f;--alerta:#ec8a78;--ref:#ec8a78;
+      --sombra:none}
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  [hidden]{display:none!important}
+
+  /* topo */
+  .topo{padding:26px 0 8px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+  .marca{display:flex;align-items:center;gap:12px}
+  .marca svg{width:30px;height:30px;color:var(--verde)}
+  .marca b{font:600 1.25rem var(--serif);letter-spacing:-.01em}
+  .marca span{display:block;color:var(--muted);font-size:.82rem;margin-top:1px}
+  .seg{display:inline-flex;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+  .seg button{font:500 .88rem var(--sans);color:var(--muted);background:none;border:0;border-radius:999px;padding:7px 15px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .seg button:focus-visible{outline:2px solid var(--verde);outline-offset:1px}
+  .meta{color:var(--muted);font-size:.85rem;margin:6px 0 22px}
+
+  /* destaque */
+  .hero{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sombra);
+    padding:28px 30px;display:grid;grid-template-columns:1.25fr 1fr;gap:28px;margin-bottom:16px}
+  .rotulo{font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .hero h1{margin:8px 0 8px;font:500 2.4rem/1.1 var(--serif);letter-spacing:-.02em;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .pill{display:inline-flex;align-items:center;gap:8px;font:600 .8rem var(--sans);letter-spacing:.04em;text-transform:uppercase;
+    padding:5px 12px;border-radius:999px;border:1px solid currentColor}
+  .pill i,.pt{display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor}
+  .s-BAIXA,.s-BAIXO{color:var(--ok)} .s-MODERADA,.s-MÉDIO{color:var(--atencao)} .s-ALTA,.s-ALTO{color:var(--alerta)}
+  .hero p{margin:0;color:var(--muted);max-width:46ch}
+  .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:0;align-self:center;border-left:1px solid var(--line)}
+  .mini div{padding:4px 18px}
+  .mini div+div{border-left:1px solid var(--line)}
+  .num{font:500 1.9rem/1.1 var(--serif);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .num small{font:500 .8rem var(--sans);color:var(--muted);margin-left:2px;letter-spacing:0}
+  .mini .rotulo{display:block;margin-bottom:6px}
+
+  /* indicadores */
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+  .tile,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--sombra)}
+  .tile .pergunta{font-size:.9rem;color:var(--muted);margin:0 0 10px}
+  .tile .resp{font:500 1.7rem/1.15 var(--serif);letter-spacing:-.015em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .tile .det{margin:8px 0 0;color:var(--muted);font-size:.85rem}
+  .tag{font:600 .66rem var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+
+  /* gráficos */
+  .graficos{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .card h2{margin:0;font:500 1.1rem var(--serif);letter-spacing:-.01em}
+  .card .sub{margin:3px 0 14px;color:var(--muted);font-size:.82rem}
+  svg{width:100%;height:auto;display:block;overflow:visible}
+  .eixo{fill:var(--muted);font:11px var(--sans)}
+  .grade{stroke:var(--line);stroke-width:1}
+  .ref{stroke:var(--ref);stroke-dasharray:4 4;stroke-width:1.2;opacity:.8}
+  .barra{fill:var(--agua)}
+  .barra:hover{opacity:.7}
+  .linha{fill:none;stroke:var(--verde);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+  .area{fill:var(--verde);opacity:.09}
+  .ponto{fill:var(--card);stroke:var(--verde);stroke-width:2}
+
+  /* tabela */
+  .tabela{overflow-x:auto;margin-top:8px}
+  table{width:100%;border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums}
+  th,td{padding:11px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{font:600 .72rem var(--sans);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  tr:last-child td{border-bottom:0}
+  td .st{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:.8rem}
+
+  .aviso{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--atencao);border-radius:12px;padding:18px 20px;margin-top:8px}
+  .aviso code{background:var(--soft);padding:1px 6px;border-radius:4px}
+
+  footer{margin:26px 0 48px;color:var(--muted);font-size:.78rem;border-top:1px solid var(--line);padding-top:16px}
+  footer ul{margin:0;padding-left:16px} footer li{margin:3px 0}
+
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr;padding:22px}
+    .mini{border-left:0;border-top:1px solid var(--line);padding-top:16px}
+    .mini div:first-child{padding-left:0}
+    .tiles,.graficos{grid-template-columns:1fr}
+    .hero h1{font-size:2rem}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topo">
+    <div class="marca">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M16 28V13"/><path d="M16 17c-5 0-8-3-8-8 5 0 8 3 8 8z"/><path d="M16 21c4.5 0 7-2.5 7-7-4.5 0-7 2.5-7 7z"/>
+      </svg>
+      <div><b>AgroFácil</b><span>Painel do produtor</span></div>
+    </div>
+    <div class="seg" id="municipios" role="group" aria-label="Município"></div>
+  </header>
+  <p class="meta" id="meta">&nbsp;</p>
+
+  <div id="erro" class="aviso" hidden></div>
+
+  <main id="app" hidden>
+    <section class="hero" aria-labelledby="h-irrig">
+      <div>
+        <span class="rotulo">Preciso irrigar hoje?</span>
+        <h1 id="h-irrig"></h1>
+        <p id="h-texto"></p>
+      </div>
+      <div class="mini" id="mini"></div>
+    </section>
+
+    <section class="tiles">
+      <article class="tile"><p class="pergunta">Há risco de estiagem?</p><div id="c-estiagem"></div></article>
+      <article class="tile"><p class="pergunta">Houve estresse térmico?</p><div id="c-calor"></div></article>
+      <article class="tile"><p class="pergunta">Quanto de água e dinheiro poupei?</p><div id="c-economia"></div></article>
+    </section>
+
+    <section class="graficos">
+      <article class="card"><h2>Chuva por dia</h2><p class="sub">Milímetros. A linha tracejada marca a necessidade de referência, 3,5 mm/dia.</p><div id="g-chuva"></div></article>
+      <article class="card"><h2>Umidade do solo</h2><p class="sub">m³/m³. A linha tracejada marca o nível crítico, 0,20.</p><div id="g-umidade"></div></article>
+    </section>
+
+    <section class="card">
+      <h2>Últimos 7 dias</h2>
+      <div class="tabela"><table id="tabela"></table></div>
+    </section>
+  </main>
+
+  <footer>
+    <ul>
+      <li>Fontes: Open-Meteo (clima horário, dado real), IBGE Localidades (cadastro de municípios, dado real) e cadastro de lavouras SIMULADO (área e produção fictícias, gerado pelo projeto). Processado no Databricks (Bronze, Prata e Ouro). Nenhum dado pessoal é exibido.</li>
+      <li>Premissas: necessidade hídrica de 3,5 mm/dia; 1 mm sobre 1 ha = 10 m³; água a R$ 1,85/m³; dia seco = menos de 1 mm; estresse térmico = acima de 32 °C. A economia é uma estimativa teórica (chuva × área plantada × R$ 1,85/m³), não um valor real.</li>
+      <li>"Hoje" é o dia mais recente do extrato da Ouro (<code>ouro_mvp_diario</code>).</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var ARQUIVO = "dados_ouro.json";
+  var dados = [], atual = null;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var fmt = function (n, d) {
+    return (n === null || n === undefined || isNaN(n)) ? "–" :
+      Number(n).toLocaleString("pt-BR", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+  };
+  var dataBR = function (iso) { var p = String(iso).slice(0, 10).split("-"); return p[2] + "/" + p[1] + "/" + p[0]; };
+  var curta = function (iso) { var p = String(iso).slice(0, 10).split("-"); return p[2] + "/" + p[1]; };
+  var nivel = function (t) { return String(t || "").charAt(0) + String(t || "").slice(1).toLowerCase(); };
+  var pill = function (t) { return '<span class="pill s-' + t + '"><i></i>' + nivel(t) + '</span>'; };
+  var estado = function (t) { return '<span class="st s-' + t + '"><span class="pt"></span>' + nivel(t) + '</span>'; };
+  var milhoes = function (v) {
+    return v >= 1e6 ? "R$ " + fmt(v / 1e6, 1) + " mi" : "R$ " + fmt(v, 0);
+  };
+
+  var TEXTO = {
+    BAIXA: "A chuva recente cobre a demanda das plantas. Não há necessidade de irrigar agora.",
+    MODERADA: "A chuva cobriu parte da demanda. Acompanhe a umidade do solo nos próximos dias.",
+    ALTA: "Pouca chuva e solo seco. Irrigar hoje evita perda de produtividade."
+  };
+
+  function mostrarErro(html) {
+    $("erro").innerHTML = html; $("erro").hidden = false; $("app").hidden = true;
+  }
+
+  function iniciar(registros) {
+    if (!Array.isArray(registros) || !registros.length) {
+      return mostrarErro("<strong>O extrato está vazio.</strong> Rode a última etapa do notebook (exportação) e publique o <code>dados_ouro.json</code> gerado.");
+    }
+    dados = registros.slice().sort(function (a, b) { return String(a.data).localeCompare(String(b.data)); });
+    var nomes = Array.from(new Set(dados.map(function (r) { return r.municipio; }))).sort();
+    atual = nomes[0];
+    $("municipios").innerHTML = nomes.map(function (n) {
+      return '<button type="button" aria-pressed="' + (n === atual) + '" data-m="' + n + '">' + n + '</button>';
+    }).join("");
+    $("erro").hidden = true; $("app").hidden = false;
+    desenhar();
+  }
+
+  function escala(max) {            // topo "redondo" para o eixo
+    var p = Math.pow(10, Math.floor(Math.log10(max || 1))), f = max / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+  }
+
+  function barras(serie, limite) {
+    var W = 520, H = 220, mE = 34, mB = 26, mT = 8, n = serie.length;
+    var max = escala(Math.max.apply(null, serie.map(function (s) { return s.v; }).concat([limite * 1.2, 1])));
+    var y = function (v) { return mT + (H - mT - mB) * (1 - v / max); };
+    var larg = (W - mE) / n, s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Chuva por dia">';
+    [0, .5, 1].forEach(function (f) {
+      s += '<line class="grade" x1="' + mE + '" x2="' + W + '" y1="' + y(max * f) + '" y2="' + y(max * f) + '"/>' +
+           '<text class="eixo" x="' + (mE - 8) + '" y="' + (y(max * f) + 4) + '" text-anchor="end">' + fmt(max * f, 0) + '</text>';
+    });
+    serie.forEach(function (p, i) {
+      var h = y(0) - y(p.v), x = mE + i * larg;
+      s += '<rect class="barra" rx="2" x="' + (x + larg * .14) + '" y="' + y(p.v) + '" width="' + Math.max(larg * .72, 1) +
+           '" height="' + Math.max(h, 0) + '"><title>' + dataBR(p.d) + ': ' + fmt(p.v, 1) + ' mm</title></rect>';
+    });
+    s += '<line class="ref" x1="' + mE + '" x2="' + W + '" y1="' + y(limite) + '" y2="' + y(limite) + '"/>';
+    s += '<text class="eixo" x="' + mE + '" y="' + (H - 6) + '">' + curta(serie[0].d) + '</text>';
+    s += '<text class="eixo" x="' + W + '" y="' + (H - 6) + '" text-anchor="end">' + curta(serie[n - 1].d) + '</text></svg>';
+    return s;
+  }
+
+  function linha(serie, limite) {
+    var W = 520, H = 220, mE = 34, mB = 26, mT = 8, n = serie.length;
+    var vals = serie.map(function (s) { return s.v; });
+    var max = Math.max.apply(null, vals.concat([limite * 1.3])), min = Math.min.apply(null, vals.concat([limite * .7]));
+    max = Math.ceil(max * 20) / 20; min = Math.floor(min * 20) / 20;
+    var x = function (i) { return mE + (W - mE - 6) * (n === 1 ? .5 : i / (n - 1)); };
+    var y = function (v) { return mT + (H - mT - mB) * (1 - (v - min) / ((max - min) || 1)); };
+    var pts = serie.map(function (p, i) { return x(i) + "," + y(p.v); });
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Umidade do solo">';
+    [0, .5, 1].forEach(function (f) {
+      var v = min + (max - min) * f;
+      s += '<line class="grade" x1="' + mE + '" x2="' + W + '" y1="' + y(v) + '" y2="' + y(v) + '"/>' +
+           '<text class="eixo" x="' + (mE - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + fmt(v, 2) + '</text>';
+    });
+    s += '<polygon class="area" points="' + x(0) + "," + y(min) + " " + pts.join(" ") + " " + x(n - 1) + "," + y(min) + '"/>';
+    s += '<line class="ref" x1="' + mE + '" x2="' + W + '" y1="' + y(limite) + '" y2="' + y(limite) + '"/>';
+    s += '<polyline class="linha" points="' + pts.join(" ") + '"/>';
+    var u = n - 1;
+    s += '<circle class="ponto" cx="' + x(u) + '" cy="' + y(serie[u].v) + '" r="4"><title>' + dataBR(serie[u].d) + ': ' + fmt(serie[u].v, 3) + '</title></circle>';
+    s += '<text class="eixo" x="' + mE + '" y="' + (H - 6) + '">' + curta(serie[0].d) + '</text>';
+    s += '<text class="eixo" x="' + W + '" y="' + (H - 6) + '" text-anchor="end">' + curta(serie[u].d) + '</text></svg>';
+    return s;
+  }
+
+  function desenhar() {
+    var linhas = dados.filter(function (r) { return r.municipio === atual; });
+    var ult = linhas[linhas.length - 1];
+    var janela = linhas.slice(-30);
+
+    $("meta").textContent = atual + (ult.uf ? "/" + ult.uf : "") +
+      (ult.cultura_principal ? " · " + ult.cultura_principal : "") +
+      (ult.area_plantada_ha ? " · " + fmt(ult.area_plantada_ha) + " ha plantados" : "") +
+      " · dados até " + dataBR(ult.data);
+
+    var p = ult.prioridade_irrigacao;
+    $("h-irrig").innerHTML = pill(p);
+    $("h-texto").textContent = (TEXTO[p] || "") + " Referência: " + dataBR(ult.data) + ".";
+    $("mini").innerHTML =
+      '<div><span class="rotulo">Chuva</span><span class="num">' + fmt(ult.chuva_dia_mm, 1) + '<small>mm</small></span></div>' +
+      '<div><span class="rotulo">Temp. média</span><span class="num">' + fmt(ult.temp_media_c, 1) + '<small>°C</small></span></div>' +
+      '<div><span class="rotulo">Umid. solo</span><span class="num">' + fmt(ult.umidade_solo_media, 2) + '</span></div>';
+
+    $("c-estiagem").innerHTML = '<div class="resp">' + pill(ult.risco_estiagem) + '</div>' +
+      '<p class="det">' + fmt(ult.dias_secos_consecutivos) + ' dia(s) seguido(s) com menos de 1 mm de chuva.</p>';
+
+    var calor = ult.horas_estresse_termico || 0;
+    $("c-calor").innerHTML = '<div class="resp">' + fmt(calor) + ' h</div>' +
+      '<p class="det">acima de 32 °C em ' + dataBR(ult.data) + '. Pico do dia: ' + fmt(ult.temp_max_c, 1) + ' °C.</p>';
+
+    var agua = janela.reduce(function (a, r) { return a + (r.agua_poupada_m3 || 0); }, 0);
+    var reais = janela.reduce(function (a, r) { return a + (r.economia_reais || 0); }, 0);
+    $("c-economia").innerHTML = '<div class="resp">' + milhoes(reais) + ' <span class="tag">estimativa</span></div>' +
+      '<p class="det">' + fmt(agua) + ' m³ de água poupados pela chuva nos últimos ' + janela.length + ' dias.</p>';
+
+    $("g-chuva").innerHTML = barras(janela.map(function (r) { return { d: r.data, v: r.chuva_dia_mm || 0 }; }), 3.5);
+    $("g-umidade").innerHTML = linha(janela.map(function (r) { return { d: r.data, v: r.umidade_solo_media || 0 }; }), 0.20);
+
+    var cab = "<thead><tr><th>Data</th><th>Chuva (mm)</th><th>Temp. média (°C)</th><th>Umidade solo</th><th>Horas &gt; 32 °C</th><th>Irrigação</th></tr></thead>";
+    var corpo = linhas.slice(-7).reverse().map(function (r) {
+      return "<tr><td>" + dataBR(r.data) + "</td><td>" + fmt(r.chuva_dia_mm, 1) + "</td><td>" + fmt(r.temp_media_c, 1) +
+        "</td><td>" + fmt(r.umidade_solo_media, 3) + "</td><td>" + fmt(r.horas_estresse_termico) + "</td><td>" + estado(r.prioridade_irrigacao) + "</td></tr>";
+    }).join("");
+    $("tabela").innerHTML = cab + "<tbody>" + corpo + "</tbody>";
+  }
+
+  $("municipios").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) { return; }
+    atual = b.getAttribute("data-m");
+    Array.prototype.forEach.call($("municipios").children, function (x) { x.setAttribute("aria-pressed", x === b); });
+    desenhar();
+  });
+
+  fetch(ARQUIVO, { cache: "no-store" })
+    .then(function (r) { if (!r.ok) { throw new Error("HTTP " + r.status); } return r.json(); })
+    .then(iniciar)
+    .catch(function () {
+      mostrarErro(
+        "<strong>Não foi possível carregar <code>" + ARQUIVO + "</code>.</strong><br>" +
+        "Abra a página pelo endereço publicado (GitHub Pages) ou, para testar no computador, escolha o arquivo: <input type='file' id='arq' accept='.json'>");
+      var inp = $("arq");
+      if (inp) { inp.addEventListener("change", function () {
+        var f = inp.files[0]; if (!f) { return; }
+        var rd = new FileReader();
+        rd.onload = function () { try { iniciar(JSON.parse(rd.result)); } catch (e) { mostrarErro("JSON inválido."); } };
+        rd.readAsText(f);
+      }); }
+    });
+})();
+</script>
+</body>
+</html>

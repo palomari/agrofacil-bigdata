@@ -1,0 +1,18 @@
+# Ambiente virtual
+venv/
+
+# Airflow local e banco de dados (a Variable com o sal fica aqui dentro)
+airflow/
+airflow.db*
+*.db-shm
+*.db-wal
+
+# Dados locais: coletas do DAG e lotes enviados ao Databricks
+chegada/
+lotes/
+
+# Sistema operacional, IDE e Python
+.DS_Store
+.vscode/
+__pycache__/
+*.pyc
